@@ -1,4 +1,4 @@
-# Claude Code Docker
+# Claude Cage
 
 Run [Claude Code](https://claude.ai/claude-code) in an isolated Docker container with `--dangerously-skip-permissions` enabled.
 
@@ -9,23 +9,27 @@ Run [Claude Code](https://claude.ai/claude-code) in an isolated Docker container
 
 ## Quick Install
 
-Add `claude-docker` as a global command:
+Add `claude-cage` as a global command (a `claude-docker` alias is also included):
 
 ```bash
+sudo ln -s "$(pwd)/claude-cage" /usr/local/bin/claude-cage
 sudo ln -s "$(pwd)/claude-docker" /usr/local/bin/claude-docker
 ```
 
-3. From any project folder:
+Then from any project folder:
 
 ```bash
 # Interactive mode
-claude-docker
+claude-cage
 
 # One-shot prompt
-claude-docker "refactor the auth module"
+claude-cage "refactor the auth module"
+
+# Specify a project directory explicitly
+claude-cage /path/to/project "refactor the auth module"
 ```
 
-The image is built automatically on first run.
+The Docker image is built automatically on first run.
 
 ## Manual Usage
 
@@ -51,7 +55,7 @@ Replace `<project-path>` with the absolute path to the project you want to work 
 
 ```bash
 docker run -it \
-  -v ~/git/fiplan:/workspace \
+  -v <project-path>:/workspace \
   -v ~/.claude:/home/claude/.claude \
   -v ~/.claude.json:/home/claude/.claude.json \
   claude-code -p --dangerously-skip-permissions "Your prompt here"

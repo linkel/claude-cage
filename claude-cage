@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+IMAGE="claude-code"
+
+# Resolve the directory where this script lives (for finding the Dockerfile)
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+
+# Build the image if it doesn't exist
+if ! docker image inspect "$IMAGE" &>/dev/null; then
+  echo "Building claude-code Docker image..."
+  docker build -t "$IMAGE" "$SCRIPT_DIR"
+fi
+
+WORKSPACE="$(pwd)"
+PROMPT=""
+
+# Parse arguments: if first arg is a directory, use it as workspace
+# Remaining args (or all args if first isn't a dir) become the prompt
+if [ $# -gt 0 ] && [ -d "$1" ]; then
+  WORKSPACE="$(realpath "$1")"
+  shift
+fi
+
+if [ $# -gt 0 ]; then
+  PROMPT="$*"
+fi
+
+DOCKER_ARGS=(
+  -it
+  -v "$WORKSPACE":/workspace
+  -v ~/.claude:/home/claude/.claude
+  -v ~/.claude.json:/home/claude/.claude.json
+)
+
+if [ -n "$PROMPT" ]; then
+  docker run "${DOCKER_ARGS[@]}" "$IMAGE" -p --dangerously-skip-permissions "$PROMPT"
+else
+  docker run "${DOCKER_ARGS[@]}" "$IMAGE" --dangerously-skip-permissions
+fi
